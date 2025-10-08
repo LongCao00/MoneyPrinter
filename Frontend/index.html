@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TikTok/YouTube Shorts Generator</title>
+    <link
+      rel="icon"
+      href="https://upload.wikimedia.org/wikipedia/commons/9/98/YouTube_Logo.svg"
+    />
+
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        background: radial-gradient(
+            circle at top left,
+            rgba(255, 0, 0, 0.2),
+            transparent
+          ),
+          radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.05), transparent),
+          #0f0f0f url('https://www.freepik.com/free-photo/pile-3d-play-button-logos_1191373.htm#fromView=keyword&page=1&position=3&uuid=9acfcb9f-234d-4faf-bd98-cfa588f25107&query=Youtube+background') no-repeat center center fixed;
+        background-size: cover;
+        color: #fff;
+        font-family: 'Inter', sans-serif;
+      }
+
+      .card {
+        background-color: #181818;
+        border: 1px solid #2c2c2c;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+      }
+
+      .btn-primary {
+        background-color: #ff0000;
+        transition: background-color 0.2s;
+      }
+
+      .btn-primary:hover {
+        background-color: #cc0000;
+      }
+
+      .btn-secondary {
+        background-color: #444;
+        transition: background-color 0.2s;
+      }
+
+      .btn-secondary:hover {
+        background-color: #666;
+      }
+
+      select,
+      textarea,
+      input {
+        background-color: #121212;
+        color: #fff;
+        border: 1px solid #3d3d3d;
+      }
+
+      footer {
+        color: #999;
+      }
+
+      /* Smooth dropdown */
+      #advancedOptions {
+        transition: all 0.3s ease-in-out;
+      }
+    </style>
+  </head>
+
+  <body class="min-h-screen flex flex-col items-center justify-center p-8">
+    <div class="card max-w-2xl w-full">
+      <div class="flex justify-center mb-6">
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg"
+          alt="YouTube Logo"
+          class="h-10"
+        />
+      </div>
+
+      <h1 class="text-3xl text-center font-semibold mb-3">
+        TikTok / YouTube Shorts Generator
+      </h1>
+      <p class="text-center text-gray-300 mb-8">
+        Automatically generate, voice, and upload YouTube Shorts in seconds.
+      </p>
+
+      <div class="flex flex-col space-y-4">
+        <label for="videoSubject" class="text-red-400">Subject</label>
+        <textarea
+          rows="3"
+          id="videoSubject"
+          placeholder="e.g. Amazon Rainforest"
+          class="p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+        ></textarea>
+
+        <button
+          id="advancedOptionsToggle"
+          class="text-sm text-gray-300 hover:text-red-400 transition"
+        >
+          Show Advanced Options ▼
+        </button>
+
+        <div id="advancedOptions" class="flex flex-col space-y-4 hidden">
+          <label for="aiModel" class="text-red-400">AI Model</label>
+          <select
+            id="aiModel"
+            class="p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+          >
+            <option value="gpt3.5-turbo">OpenAI GPT-3.5</option>
+            <option value="gpt4">OpenAI GPT-4</option>
+            <option value="gemmini">Gemini Pro</option>
+          </select>
+
+          <label for="voice" class="text-red-400">Voice</label>
+          <select
+            id="voice"
+            class="p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+          >
+            <option value="en_us_ghostface">Ghost Face</option>
+            <option value="en_us_chewbacca">Chewbacca</option>
+            <option value="en_us_c3po">C3PO</option>
+            <option value="en_us_stitch">Stitch</option>
+            <option value="en_us_stormtrooper">Stormtrooper</option>
+            <option value="en_us_rocket">Rocket</option>
+            <option value="en_au_001">English AU - Female</option>
+            <option value="en_au_002">English AU - Male</option>
+            <option value="en_uk_001">English UK - Male 1</option>
+            <option value="en_uk_003">English UK - Male 2</option>
+            <option value="en_us_001">English US - Female (Int. 1)</option>
+            <option value="en_us_002">English US - Female (Int. 2)</option>
+            <option value="en_us_006">English US - Male 1</option>
+            <option value="en_us_007">English US - Male 2</option>
+            <option value="en_us_009">English US - Male 3</option>
+            <option value="en_us_010">English US - Male 4</option>
+            <option value="fr_001">French - Male 1</option>
+            <option value="fr_002">French - Male 2</option>
+            <option value="de_001">German - Female</option>
+            <option value="de_002">German - Male</option>
+            <option value="es_002">Spanish - Male</option>
+            <option value="es_mx_002">Spanish MX - Male</option>
+            <option value="br_001">Portuguese BR - Female 1</option>
+            <option value="br_003">Portuguese BR - Female 2</option>
+            <option value="br_004">Portuguese BR - Female 3</option>
+            <option value="br_005">Portuguese BR - Male</option>
+            <option value="id_001">Indonesian - Female</option>
+            <option value="jp_001">Japanese - Female 1</option>
+            <option value="jp_003">Japanese - Female 2</option>
+            <option value="jp_005">Japanese - Female 3</option>
+            <option value="jp_006">Japanese - Male</option>
+            <option value="kr_002">Korean - Male 1</option>
+            <option value="kr_003">Korean - Female</option>
+            <option value="kr_004">Korean - Male 2</option>
+            <option value="en_female_f08_salut_damour">Alto</option>
+            <option value="en_male_m03_lobby">Tenor</option>
+            <option value="en_female_f08_warmy_breeze">Warmy Breeze</option>
+            <option value="en_male_m03_sunshine_soon">Sunshine Soon</option>
+            <option value="en_male_narration">narrator</option>
+            <option value="en_male_funny">wacky</option>
+            <option value="en_female_emotional">peaceful</option>
+          </select>
+
+          <label for="subtitlesPosition" class="text-red-400">Subtitles Position</label>
+          <select
+            id="subtitlesPosition"
+            class="p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+          >
+            <option value="center,top">Center - Top</option>
+            <option value="center,bottom">Center - Bottom</option>
+            <option value="center,center">Center - Center</option>
+            <option value="left,center">Left - Center</option>
+            <option value="left,bottom">Left - Bottom</option>
+            <option value="right,center">Right - Center</option>
+            <option value="right,bottom">Right - Bottom</option>
+          </select>
+
+          <label for="subtitlesColor" class="text-red-400">Subtitles Color</label>
+          <select
+            id="subtitlesColor"
+            class="p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+          >
+            <option value="#FFFF00">Yellow (Default)</option>
+            <option value="#f4a261">Orange</option>
+            <option value="#e63946">Red</option>
+            <option value="#1d3557">Blue</option>
+            <option value="#fff">White</option>
+            <option value="#03071e">Black</option>
+          </select>
+
+          <label for="paragraphNumber" class="text-red-400">Paragraph Number</label>
+          <input
+            type="number"
+            id="paragraphNumber"
+            value="1"
+            min="1"
+            max="10"
+            class="p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+          />
+
+          <div class="flex flex-col space-y-2">
+            <label class="flex items-center text-red-400">
+              <input type="checkbox" id="youtubeUploadToggle" class="mr-2" />
+              Upload to YouTube
+            </label>
+            <label class="flex items-center text-red-400">
+              <input type="checkbox" id="useMusicToggle" class="mr-2" />
+              Use Music
+            </label>
+<!--            <label class="flex items-center text-red-400">-->
+<!--              <input type="checkbox" id="reuseChoicesToggle" class="mr-2" />-->
+<!--              Reuse Choices-->
+<!--            </label>-->
+          </div>
+        </div>
+
+        <div class="flex space-x-4 mt-4">
+          <button id="generateButton" class="btn-primary w-full py-2 rounded-md">
+            Generate
+          </button>
+          <button
+            id="cancelButton"
+            class="btn-secondary w-full py-2 rounded-md hidden"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <footer class="mt-10 text-center">
+      <p class="text-gray-400">Made by <span class="text-red-500">Team 2</span></p>
+    </footer>
+
+    <script>
+      const toggle = document.getElementById('advancedOptionsToggle');
+      const advancedOptions = document.getElementById('advancedOptions');
+
+      toggle.addEventListener('click', () => {
+        advancedOptions.classList.toggle('hidden');
+        toggle.textContent = advancedOptions.classList.contains('hidden')
+          ? 'Show Advanced Options ▼'
+          : 'Hide Advanced Options ▲';
+      });
+    </script>
+  </body>
+</html>
