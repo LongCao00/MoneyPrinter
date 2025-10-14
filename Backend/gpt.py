@@ -215,14 +215,15 @@ def get_search_terms(video_subject: str, amount: int, script: str, ai_model: str
 
         # Attempt to extract list-like string and convert to list
         match = re.search(r'\["(?:[^"\\]|\\.)*"(?:,\s*"[^"\\]*")*\]', response)
-        print(match.group())
         if match:
             try:
                 search_terms = json.loads(match.group())
             except json.JSONDecodeError:
                 print(colored("[-] Could not parse response.", "red"))
                 return []
-
+        else:
+            print(colored("[-] No list-like pattern found in GPT response.", "red"))
+            return []
 
     # Let user know
     print(colored(f"\nGenerated {len(search_terms)} search terms: {', '.join(search_terms)}", "cyan"))

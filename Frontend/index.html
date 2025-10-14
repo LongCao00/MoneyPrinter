@@ -3,124 +3,58 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TikTok/YouTube Shorts Generator</title>
+    <title>MoneyPrinter</title>
     <link
       rel="icon"
-      href="https://upload.wikimedia.org/wikipedia/commons/9/98/YouTube_Logo.svg"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💸</text></svg>"
     />
 
     <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
       rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.0.2/tailwind.min.css"
     />
-
-    <style>
-      body {
-        background: radial-gradient(
-            circle at top left,
-            rgba(255, 0, 0, 0.2),
-            transparent
-          ),
-          radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.05), transparent),
-          #0f0f0f url('https://www.freepik.com/free-photo/pile-3d-play-button-logos_1191373.htm#fromView=keyword&page=1&position=3&uuid=9acfcb9f-234d-4faf-bd98-cfa588f25107&query=Youtube+background') no-repeat center center fixed;
-        background-size: cover;
-        color: #fff;
-        font-family: 'Inter', sans-serif;
-      }
-
-      .card {
-        background-color: #181818;
-        border: 1px solid #2c2c2c;
-        border-radius: 1rem;
-        padding: 2rem;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
-      }
-
-      .btn-primary {
-        background-color: #ff0000;
-        transition: background-color 0.2s;
-      }
-
-      .btn-primary:hover {
-        background-color: #cc0000;
-      }
-
-      .btn-secondary {
-        background-color: #444;
-        transition: background-color 0.2s;
-      }
-
-      .btn-secondary:hover {
-        background-color: #666;
-      }
-
-      select,
-      textarea,
-      input {
-        background-color: #121212;
-        color: #fff;
-        border: 1px solid #3d3d3d;
-      }
-
-      footer {
-        color: #999;
-      }
-
-      /* Smooth dropdown */
-      #advancedOptions {
-        transition: all 0.3s ease-in-out;
-      }
-    </style>
   </head>
 
-  <body class="min-h-screen flex flex-col items-center justify-center p-8">
-    <div class="card max-w-2xl w-full">
-      <div class="flex justify-center mb-6">
-        <img
-          src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg"
-          alt="YouTube Logo"
-          class="h-10"
-        />
-      </div>
+  <body class="bg-blue-100 min-h-screen justify-center p-40">
+    <h1 class="text-4xl text-center mb-4">MoneyPrinter</h1>
+    <p class="text-center text-gray-700">
+      This Application is intended to automate the creation and uploads of
+      YouTube Shorts.
+    </p>
 
-      <h1 class="text-3xl text-center font-semibold mb-3">
-        TikTok / YouTube Shorts Generator
-      </h1>
-      <p class="text-center text-gray-300 mb-8">
-        Automatically generate, voice, and upload YouTube Shorts in seconds.
-      </p>
-
-      <div class="flex flex-col space-y-4">
-        <label for="videoSubject" class="text-red-400">Subject</label>
-        <textarea
-          rows="3"
-          id="videoSubject"
-          placeholder="e.g. Amazon Rainforest"
-          class="p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-        ></textarea>
-
-        <button
-          id="advancedOptionsToggle"
-          class="text-sm text-gray-300 hover:text-red-400 transition"
-        >
+    <div class="flex justify-center mt-8">
+      <div class="max-w-xl flex flex-col space-y-4 w-full">
+        <label for="videoSubject" class="text-blue-600">Subject</label>
+          <textarea
+              rows="3"
+              type="text"
+              name="videoSubject"
+              id="videoSubject"
+              class="border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500"
+          ></textarea>
+        <button id="advancedOptionsToggle" class="text-blue-600">
           Show Advanced Options ▼
         </button>
-
-        <div id="advancedOptions" class="flex flex-col space-y-4 hidden">
-          <label for="aiModel" class="text-red-400">AI Model</label>
+        <div
+          class="flex flex-col space-y-4 hidden transition-all duration-150 linear"
+          id="advancedOptions"
+        >
+          <label for="aiModel" class="text-blue-600">AI Model</label>
           <select
+            name="aiModel"
             id="aiModel"
-            class="p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+            class="w-full border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500"
           >
+            <option value="g4f">g4f (Free)</option>
             <option value="gpt3.5-turbo">OpenAI GPT-3.5</option>
             <option value="gpt4">OpenAI GPT-4</option>
             <option value="gemmini">Gemini Pro</option>
           </select>
-
-          <label for="voice" class="text-red-400">Voice</label>
+          <label for="voice" class="text-blue-600">Voice</label>
           <select
+            name="voice"
             id="voice"
-            class="p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+            class="w-min border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500"
           >
             <option value="en_us_ghostface">Ghost Face</option>
             <option value="en_us_chewbacca">Chewbacca</option>
@@ -164,11 +98,13 @@
             <option value="en_male_funny">wacky</option>
             <option value="en_female_emotional">peaceful</option>
           </select>
-
-          <label for="subtitlesPosition" class="text-red-400">Subtitles Position</label>
+          <label for="subtitlesPosition" class="text-blue-600"
+            >Subtitles Position</label
+          >
           <select
+            name="subtitlesPosition"
             id="subtitlesPosition"
-            class="p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+            class="w-min border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500"
           >
             <option value="center,top">Center - Top</option>
             <option value="center,bottom">Center - Bottom</option>
@@ -178,11 +114,12 @@
             <option value="right,center">Right - Center</option>
             <option value="right,bottom">Right - Bottom</option>
           </select>
-
-          <label for="subtitlesColor" class="text-red-400">Subtitles Color</label>
+          <label for="subtitlesColor" class="text-blue-600"
+            >Subtitles Color</label>
           <select
+            name="subtitlesColor"
             id="subtitlesColor"
-            class="p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+            class="w-min border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500"
           >
             <option value="#FFFF00">Yellow (Default)</option>
             <option value="#f4a261">Orange</option>
@@ -191,61 +128,112 @@
             <option value="#fff">White</option>
             <option value="#03071e">Black</option>
           </select>
-
-          <label for="paragraphNumber" class="text-red-400">Paragraph Number</label>
+          <label for="zipUrl" class="text-blue-600"
+            >Zip URL (Leave empty for default)</label
+          >
+          <input
+            type="text"
+            name="zipUrl"
+            id="zipUrl"
+            class="border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500"
+          />
+          <label for="threads" class="text-blue-600">Threads</label>
           <input
             type="number"
+            name="threads"
+            id="threads"
+            class="border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500"
+            value="2"
+            min="1"
+            max="100"
+            placeholder="2 (Default)"
+          />
+          <label for="paragraphNumber" class="text-blue-600"
+            >Paragraph Number</label
+          >
+          <input
+            type="number"
+            name="paragraphNumber"
             id="paragraphNumber"
+            class="border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500"
             value="1"
             min="1"
-            max="10"
-            class="p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+            max="100"
           />
-
-          <div class="flex flex-col space-y-2">
-            <label class="flex items-center text-red-400">
-              <input type="checkbox" id="youtubeUploadToggle" class="mr-2" />
-              Upload to YouTube
-            </label>
-            <label class="flex items-center text-red-400">
-              <input type="checkbox" id="useMusicToggle" class="mr-2" />
-              Use Music
-            </label>
-<!--            <label class="flex items-center text-red-400">-->
-<!--              <input type="checkbox" id="reuseChoicesToggle" class="mr-2" />-->
-<!--              Reuse Choices-->
-<!--            </label>-->
-          </div>
-        </div>
-
-        <div class="flex space-x-4 mt-4">
-          <button id="generateButton" class="btn-primary w-full py-2 rounded-md">
-            Generate
-          </button>
-          <button
-            id="cancelButton"
-            class="btn-secondary w-full py-2 rounded-md hidden"
+          <label for="customPrompt" class="text-blue-600">Custom Prompt:</label>
+            <textarea
+              rows="3"
+              type="text"
+              name="customPrompt"
+              id="customPrompt"
+              class="border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500"
+              placeholder="Only provide this option in case you want to replace the default prompt"
+            ></textarea>
+          <label
+            for="youtubeUploadToggle"
+            class="flex items-center text-blue-600"
           >
-            Cancel
-          </button>
+            <input
+              type="checkbox"
+              name="youtubeUploadToggle"
+              id="youtubeUploadToggle"
+              class="mr-2"
+            />
+            Upload to YouTube
+          </label>
+          <label for="useMusicToggle" class="flex items-center text-blue-600">
+            <input
+              type="checkbox"
+              name="useMusicToggle"
+              id="useMusicToggle"
+              class="mr-2"
+            />
+            Use Music
+          </label>
+          <label
+            for="reuseChoicesToggle"
+            class="flex items-center text-blue-600"
+          >
+            <input
+              type="checkbox"
+              name="reuseChoicesToggle"
+              id="reuseChoicesToggle"
+              class="mr-2"
+            />
+            Reuse Choices?
+          </label>
         </div>
+        <button
+          id="generateButton"
+          class="bg-blue-500 hover:bg-blue-700 duration-100 linear text-white px-4 py-2 rounded-md"
+        >
+          Generate
+        </button>
+        <button
+          id="cancelButton"
+          class="bg-red-500 hover:bg-red-700 duration-100 linear text-white px-4 py-2 rounded-md hidden"
+        >
+          Cancel
+        </button>
+
       </div>
     </div>
 
-    <footer class="mt-10 text-center">
-      <p class="text-gray-400">Made by <span class="text-red-500">Team 2</span></p>
+    <footer class="flex justify-center mt-8">
+      <div class="flex flex-col space-y-4">
+        <p class="text-center text-gray-700">
+          Made with ❤️ by
+          <a
+            class="text-blue-600"
+            target="href"
+            href="https://github.com/FujiwaraChoki"
+          >
+            Fuji Codes
+          </a>
+        </p>
+      </div>
     </footer>
 
-    <script>
-      const toggle = document.getElementById('advancedOptionsToggle');
-      const advancedOptions = document.getElementById('advancedOptions');
-
-      toggle.addEventListener('click', () => {
-        advancedOptions.classList.toggle('hidden');
-        toggle.textContent = advancedOptions.classList.contains('hidden')
-          ? 'Show Advanced Options ▼'
-          : 'Hide Advanced Options ▲';
-      });
-    </script>
+    <script src="app.js"></script>
   </body>
 </html>
