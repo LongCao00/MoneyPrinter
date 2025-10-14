@@ -1,0 +1,1 @@
+python upload_video.py --file "output.mp4" --title "Video Uploaded #3" --description "Las Vegas" --keywords "Artificial Intelligence,OpenAI,GPT-4" --category "28" --privacyStatus "unlisted"
