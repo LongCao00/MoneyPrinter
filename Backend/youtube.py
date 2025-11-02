@@ -93,14 +93,28 @@ def initialize_upload(youtube: any, options: dict):
         response: The response from the upload process.
     """
 
+    # Validate and sanitize inputs
+    title = (options.get('title') or "").strip()
+    if not title:
+        raise ValueError("Video title is empty. Provide a non-empty title.")
+    # YouTube title limit ~100 chars
+    if len(title) > 100:
+        title = title[:100]
+
+    description = (options.get('description') or "").strip()
+    category = str(options.get('category') or "22")
+    privacy = options.get('privacyStatus') or "private"
+    if privacy not in VALID_PRIVACY_STATUSES:
+        privacy = "private"
+
     tags = None
     if options['keywords']:
         tags = options['keywords'].split(",")
 
     body = {
         'snippet': {
-            'title': options['title'],
-            'description': options['description'],
+            'title': title,
+            'description': description,
             'tags': tags,
             'categoryId': options['category']
         },
@@ -195,4 +209,4 @@ def upload_video(video_path, title, description, category, keywords, privacy_sta
             })
             return video_response
         else:
-            raise e 
+            raise e
