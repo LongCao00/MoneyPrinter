@@ -3,6 +3,9 @@ import sys
 import time
 import random
 import httplib2
+import json
+from typing import List, Tuple
+from gpt import generate_response 
 
 from termcolor import colored
 from oauth2client.file import Storage

@@ -85,12 +85,34 @@ def choose_random_song() -> str:
         str: The path to the chosen song.
     """
     try:
-        songs = os.listdir("../Songs")
+        songs_dir = "../Songs"
+        
+        # Check if directory exists
+        if not os.path.exists(songs_dir):
+            logger.error(colored("Songs directory not found. Please create ../Songs and add music files.", "red"))
+            return None
+            
+        # Get all files in the Songs directory
+        all_files = os.listdir(songs_dir)
+        
+        # Filter for audio files only
+        audio_extensions = ['.mp3', '.wav', '.m4a', '.aac', '.ogg', '.flac']
+        songs = [file for file in all_files if any(file.lower().endswith(ext) for ext in audio_extensions)]
+        
+        if not songs:
+            logger.error(colored("No audio files found in ../Songs directory.", "red"))
+            return None
+            
+        # Choose random song
         song = random.choice(songs)
+        song_path = f"{songs_dir}/{song}"
+        
         logger.info(colored(f"Chose song: {song}", "green"))
-        return f"../Songs/{song}"
+        return song_path
+        
     except Exception as e:
         logger.error(colored(f"Error occurred while choosing random song: {str(e)}", "red"))
+        return None
 
 
 def check_env_vars() -> None:

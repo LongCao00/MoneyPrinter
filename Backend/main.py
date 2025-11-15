@@ -68,15 +68,6 @@ def generate():
         # Get the ZIP Url of the songs
         songs_zip_url = data.get('zipUrl')
 
-        # Download songs
-        if use_music:
-            # Downloads a ZIP file containing popular TikTok Songs
-            if songs_zip_url:
-                fetch_songs(songs_zip_url)
-            else:
-                # Default to a ZIP file containing popular TikTok Songs
-                fetch_songs("https://filebin.net/2avx134kdibc4c3q/drive-download-20240209T180019Z-001.zip")
-
         # Print little information about the video which is to be generated
         print(colored("[Video to be generated]", "blue"))
         print(colored("   Subject: " + data["videoSubject"], "blue"))
@@ -233,7 +224,62 @@ def generate():
             print(colored(f"[-] Error generating final video: {e}", "red"))
             final_video_path = None
 
-        # Define metadata for the video, we will display this to the user, and use it for the YouTube upload
+        # ADD MUSIC TO VIDEO BEFORE UPLOAD (if requested)
+        if use_music and final_video_path:
+            try:
+                print(colored("[+] Adding background music to video...", "blue"))
+                
+                video_clip = VideoFileClip(f"../temp/{final_video_path}")
+                song_path = choose_random_song()
+                
+                if song_path and os.path.exists(song_path):
+                    print(colored(f"[+] Adding background music: {os.path.basename(song_path)}", "blue"))
+                    
+                    original_duration = video_clip.duration
+                    original_audio = video_clip.audio
+                    
+                    # Reduce voiceover volume
+                    voiceover_volume = 0.5  
+                    original_audio = original_audio.volumex(voiceover_volume)
+                    
+                    song_clip = AudioFileClip(song_path).set_fps(44100)
+
+                    # Set background music volume
+                    music_volume = 0.3  
+                    song_clip = song_clip.volumex(music_volume).set_fps(44100)
+
+                    # Loop song if needed
+                    if song_clip.duration < original_duration:
+                        loops_needed = int(original_duration / song_clip.duration) + 1
+                        song_clip = concatenate_audioclips([song_clip] * loops_needed)
+                        
+                    song_clip = song_clip.subclip(0, original_duration)
+
+                    # Combine adjusted voiceover with background music
+                    comp_audio = CompositeAudioClip([original_audio, song_clip])
+                    video_clip = video_clip.set_audio(comp_audio)
+                    video_clip = video_clip.set_fps(30)
+                    video_clip = video_clip.set_duration(original_duration)
+                    
+                    # Save final video with music as output.mp4
+                    final_video_with_music_path = "output.mp4" 
+                    video_clip.write_videofile(f"../{final_video_with_music_path}", threads=n_threads or 1)
+                    
+                    # Update final_video_path to output.mp4
+                    final_video_path = final_video_with_music_path
+                    
+                    song_clip.close()
+                    print(colored("[+] Background music added successfully", "green"))
+                else:
+                    print(colored("[-] No music file found, using video without background music", "yellow"))
+                    
+                video_clip.close()
+                
+            except Exception as e:
+                print(colored(f"[-] Error adding background music: {e}", "red"))
+                print(colored("[!] Continuing with video without music", "yellow"))
+
+        # Define metadata for the video AFTER music is added
         title, description, keywords = generate_metadata(data["videoSubject"], script, ai_model)
 
         print(colored("[-] Metadata for YouTube upload:", "blue"))
@@ -244,6 +290,7 @@ def generate():
         print(colored("   Keywords: ", "blue"))
         print(colored(f"  {', '.join(keywords)}", "blue"))
 
+        # NOW UPLOAD THE FINAL VIDEO (with music) TO YOUTUBE
         if automate_youtube_upload:
             # Start Youtube Uploader
             # Check if the CLIENT_SECRETS_FILE exists
@@ -260,7 +307,7 @@ def generate():
                 video_category_id = "28"  # Science & Technology
                 privacyStatus = "private"  # "public", "private", "unlisted"
                 video_metadata = {
-                    'video_path': os.path.abspath(f"../temp/{final_video_path}"),
+                    'video_path': os.path.abspath(f"../{final_video_path}"),  # This now includes music!
                     'title': title,
                     'description': description,
                     'category': video_category_id,
@@ -279,32 +326,12 @@ def generate():
                         keywords=video_metadata['keywords'],
                         privacy_status=video_metadata['privacyStatus']
                     )
-                    print(f"Uploaded video ID: {video_response.get('id')}")
+                    print(colored(f"[+] Uploaded video ID: {video_response.get('id')}", "green"))
                 except HttpError as e:
-                    print(f"An HTTP error {e.resp.status} occurred:\n{e.content}")
+                    print(colored(f"[-] An HTTP error {e.resp.status} occurred:\n{e.content}", "red"))
 
-        video_clip = VideoFileClip(f"../temp/{final_video_path}")
-        if use_music:
-            # Select a random song
-            song_path = choose_random_song()
-
-            # Add song to video at 30% volume using moviepy
-            original_duration = video_clip.duration
-            original_audio = video_clip.audio
-            song_clip = AudioFileClip(song_path).set_fps(44100)
-
-            # Set the volume of the song to 10% of the original volume
-            song_clip = song_clip.volumex(0.1).set_fps(44100)
-
-            # Add the song to the video
-            comp_audio = CompositeAudioClip([original_audio, song_clip])
-            video_clip = video_clip.set_audio(comp_audio)
-            video_clip = video_clip.set_fps(30)
-            video_clip = video_clip.set_duration(original_duration)
-            video_clip.write_videofile(f"../{final_video_path}", threads=n_threads or 1)
-        else:
-            video_clip.write_videofile(f"../{final_video_path}", threads=n_threads or 1)
-
+        # Clean up
+        video_clip.close()
 
         # Let user know
         print(colored(f"[+] Video generated: {final_video_path}!", "green"))
