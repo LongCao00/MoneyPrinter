@@ -6,6 +6,7 @@
 
 # --- MODIFIED VERSION --- #
 
+import os
 import base64
 import requests
 import threading
@@ -123,7 +124,7 @@ def tts(
     voice: str = "none",
     filename: str = "output.mp3",
     play_sound: bool = False,
-) -> None:
+) -> bool:
     # checking if the website is available
     global current_endpoint
 
@@ -135,20 +136,20 @@ def tts(
             print(colored("[+] TTS Service available!", "green"))
         else:
             print(colored("[-] TTS Service not available and probably temporarily rate limited, try again later..." , "red"))
-            return
+            return False
 
     # checking if arguments are valid
     if voice == "none":
         print(colored("[-] Please specify a voice", "red"))
-        return
+        return False
 
     if voice not in VOICES:
         print(colored("[-] Voice not available", "red"))
-        return
+        return False
 
     if not text:
         print(colored("[-] Please specify a text", "red"))
-        return
+        return False
 
     # creating the audio file
     try:
@@ -161,7 +162,7 @@ def tts(
 
             if audio_base64_data == "error":
                 print(colored("[-] This voice is unavailable right now", "red"))
-                return
+                return False
 
         else:
             # Split longer text into smaller parts
@@ -176,9 +177,10 @@ def tts(
                 else:
                     base64_data = str(audio).split('"')[3].split(",")[1]
 
-                if audio_base64_data == "error":
+                if base64_data == "error":
                     print(colored("[-] This voice is unavailable right now", "red"))
-                    return "error"
+                    audio_base64_data[index] = "error"
+                    return
 
                 audio_base64_data[index] = base64_data
 
@@ -195,13 +197,41 @@ def tts(
             for thread in threads:
                 thread.join()
 
-            # Concatenate the base64 data in the correct order
-            audio_base64_data = "".join(audio_base64_data)
+            # Check for errors in any of the audio parts
+            if any(part == "error" for part in audio_base64_data if part is not None):
+                print(colored("[-] Error in generating some audio parts", "red"))
+                return False
+
+            # Filter out None values and concatenate the base64 data in the correct order
+            valid_parts = [part for part in audio_base64_data if part is not None and part != "error"]
+            if not valid_parts:
+                print(colored("[-] No valid audio parts generated", "red"))
+                return False
+                
+            audio_base64_data = "".join(valid_parts)
+
+        # Validate base64 data before saving
+        if not audio_base64_data or audio_base64_data == "error":
+            print(colored("[-] No valid audio data received", "red"))
+            return False
 
         save_audio_file(audio_base64_data, filename)
+        
+        # Verify the file was created and has content
+        if not os.path.exists(filename):
+            print(colored(f"[-] Audio file was not created: {filename}", "red"))
+            return False
+            
+        file_size = os.path.getsize(filename)
+        if file_size < 100:  # Less than 100 bytes is likely corrupted
+            print(colored(f"[-] Audio file appears corrupted (size: {file_size} bytes)", "red"))
+            return False
+            
         print(colored(f"[+] Audio file saved successfully as '{filename}'", "green"))
         if play_sound:
             playsound(filename)
+        return True
 
     except Exception as e:
         print(colored(f"[-] An error occurred during TTS: {e}", "red"))
+        return False

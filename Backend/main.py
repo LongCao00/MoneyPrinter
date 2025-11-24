@@ -19,6 +19,7 @@ from youtube import upload_video
 from apiclient.errors import HttpError
 from flask import Flask, request, jsonify
 from moviepy.config import change_settings
+from moviepy.editor import AudioFileClip, VideoFileClip, concatenate_audioclips, CompositeAudioClip
 
 
 
@@ -198,14 +199,76 @@ def generate():
                     }
                 )
             current_tts_path = f"../temp/{uuid4()}.mp3"
-            tts(sentence, voice, filename=current_tts_path)
-            audio_clip = AudioFileClip(current_tts_path)
-            paths.append(audio_clip)
+            
+            # Generate TTS with error handling
+            try:
+                tts_success = tts(sentence, voice, filename=current_tts_path)
+                
+                # Check if TTS generation was successful
+                if not tts_success:
+                    print(colored(f"[-] TTS generation failed for: {sentence[:50]}...", "red"))
+                    continue
+                
+                # Verify the audio file was created and is valid
+                if not os.path.exists(current_tts_path):
+                    print(colored(f"[-] TTS file not created: {current_tts_path}", "red"))
+                    continue
+                    
+                # Check file size (corrupted files are often 0 bytes or very small)
+                file_size = os.path.getsize(current_tts_path)
+                if file_size < 100:  # Less than 100 bytes is likely corrupted
+                    print(colored(f"[-] TTS file appears corrupted (size: {file_size} bytes): {current_tts_path}", "red"))
+                    if os.path.exists(current_tts_path):
+                        os.remove(current_tts_path)
+                    continue
+                
+                # Try to load the audio clip
+                try:
+                    audio_clip = AudioFileClip(current_tts_path)
+                    # Test if we can read the duration
+                    duration_test = audio_clip.duration
+                    if duration_test <= 0:
+                        print(colored(f"[-] Audio file has invalid duration: {current_tts_path}", "red"))
+                        audio_clip.close()
+                        continue
+                    paths.append(audio_clip)
+                    print(colored(f"[+] TTS generated successfully for: {sentence[:50]}...", "green"))
+                except Exception as audio_error:
+                    print(colored(f"[-] Error loading audio file {current_tts_path}: {str(audio_error)}", "red"))
+                    # Clean up corrupted file
+                    if os.path.exists(current_tts_path):
+                        os.remove(current_tts_path)
+                    continue
+                    
+            except Exception as tts_error:
+                print(colored(f"[-] Error generating TTS for sentence '{sentence[:50]}...': {str(tts_error)}", "red"))
+                continue
+
+        # Check if we have any valid audio clips
+        if not paths:
+            print(colored("[-] No valid audio clips generated. Cannot create video.", "red"))
+            return jsonify(
+                {
+                    "status": "error",
+                    "message": "No valid audio clips generated. TTS may be experiencing issues.",
+                    "data": [],
+                }
+            )
 
         # Combine all TTS files using moviepy
-        final_audio = concatenate_audioclips(paths)
-        tts_path = f"../temp/{uuid4()}.mp3"
-        final_audio.write_audiofile(tts_path)
+        try:
+            final_audio = concatenate_audioclips(paths)
+            tts_path = f"../temp/{uuid4()}.mp3"
+            final_audio.write_audiofile(tts_path)
+        except Exception as e:
+            print(colored(f"[-] Error combining audio clips: {e}", "red"))
+            return jsonify(
+                {
+                    "status": "error",
+                    "message": f"Error combining audio clips: {str(e)}",
+                    "data": [],
+                }
+            )
 
         try:
             subtitles_path = generate_subtitles(audio_path=tts_path, sentences=sentences, audio_clips=paths, voice=voice_prefix)
@@ -224,12 +287,14 @@ def generate():
             print(colored(f"[-] Error generating final video: {e}", "red"))
             final_video_path = None
 
-        # ADD MUSIC TO VIDEO BEFORE UPLOAD (if requested)
+        # ADD MUSIC TO VIDEO AND SAVE TO VIDEOS FOLDER
+        final_video_filename = None
+        
         if use_music and final_video_path:
             try:
                 print(colored("[+] Adding background music to video...", "blue"))
                 
-                video_clip = VideoFileClip(f"../temp/{final_video_path}")
+                video_clip = VideoFileClip(f"../Videos/{final_video_path}")
                 song_path = choose_random_song()
                 
                 if song_path and os.path.exists(song_path):
@@ -245,7 +310,7 @@ def generate():
                     song_clip = AudioFileClip(song_path).set_fps(44100)
 
                     # Set background music volume
-                    music_volume = 0.3  
+                    music_volume = 0.2  
                     song_clip = song_clip.volumex(music_volume).set_fps(44100)
 
                     # Loop song if needed
@@ -261,23 +326,35 @@ def generate():
                     video_clip = video_clip.set_fps(30)
                     video_clip = video_clip.set_duration(original_duration)
                     
-                    # Save final video with music as output.mp4
-                    final_video_with_music_path = "output.mp4" 
-                    video_clip.write_videofile(f"../{final_video_with_music_path}", threads=n_threads or 1)
-                    
-                    # Update final_video_path to output.mp4
-                    final_video_path = final_video_with_music_path
+                    # Save final video with music in Videos folder
+                    from datetime import datetime
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    final_video_filename = f"output_w_music_{timestamp}.mp4"
+                    final_video_with_music_path = f"../Videos/{final_video_filename}"
+                    video_clip.write_videofile(final_video_with_music_path, threads=n_threads or 1)
                     
                     song_clip.close()
+                    video_clip.close()
                     print(colored("[+] Background music added successfully", "green"))
-                else:
-                    print(colored("[-] No music file found, using video without background music", "yellow"))
                     
-                video_clip.close()
-                
+                    # Remove the original video without music from Videos folder
+                    original_video_path = f"../Videos/{final_video_path}"
+                    if os.path.exists(original_video_path):
+                        os.remove(original_video_path)
+                        print(colored(f"[+] Removed intermediate video: {final_video_path}", "green"))
+                    
+                else:
+                    print(colored("[-] No music file found, keeping video without background music", "yellow"))
+                    final_video_filename = final_video_path
+                    
             except Exception as e:
                 print(colored(f"[-] Error adding background music: {e}", "red"))
-                print(colored("[!] Continuing with video without music", "yellow"))
+                print(colored("[!] Keeping video without music", "yellow"))
+                final_video_filename = final_video_path
+        else:
+            # No music requested, the basic video in Videos folder is the final output
+            final_video_filename = final_video_path
+            print(colored("[+] Video generation completed without background music", "green"))
 
         # Define metadata for the video AFTER music is added
         title, description, keywords = generate_metadata(data["videoSubject"], script, ai_model)
@@ -307,7 +384,7 @@ def generate():
                 video_category_id = "28"  # Science & Technology
                 privacyStatus = "private"  # "public", "private", "unlisted"
                 video_metadata = {
-                    'video_path': os.path.abspath(f"../{final_video_path}"),  # This now includes music!
+                    'video_path': os.path.abspath(f"../Videos/{final_video_filename}"),  # Path to Videos folder with final video
                     'title': title,
                     'description': description,
                     'category': video_category_id,
@@ -330,11 +407,8 @@ def generate():
                 except HttpError as e:
                     print(colored(f"[-] An HTTP error {e.resp.status} occurred:\n{e.content}", "red"))
 
-        # Clean up
-        video_clip.close()
-
         # Let user know
-        print(colored(f"[+] Video generated: {final_video_path}!", "green"))
+        print(colored(f"[+] Video generated: {final_video_filename}!", "green"))
 
         # Stop FFMPEG processes
         if os.name == "nt":
@@ -350,8 +424,8 @@ def generate():
         return jsonify(
             {
                 "status": "success",
-                "message": "Video generated! See MoneyPrinter/output.mp4 for result.",
-                "data": final_video_path,
+                "message": f"Video generated! See MoneyPrinter/Videos/{final_video_filename} for result.",
+                "data": final_video_filename,
             }
         )
     except Exception as err:
