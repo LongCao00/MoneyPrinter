@@ -1,4 +1,4 @@
-# MoneyPrinter 💸
+# TikTok Video/YouTube Shorts Generator 💸
 
 > Inspired by Fujiwara Choki. Feel free to check his github and this project's repo
 
