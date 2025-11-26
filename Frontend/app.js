@@ -1,11 +1,9 @@
 const videoSubject = document.querySelector("#videoSubject");
 const aiModel = document.querySelector("#aiModel");
 const voice = document.querySelector("#voice");
-const zipUrl = document.querySelector("#zipUrl");
 const paragraphNumber = document.querySelector("#paragraphNumber");
 const youtubeToggle = document.querySelector("#youtubeUploadToggle");
 const useMusicToggle = document.querySelector("#useMusicToggle");
-const customPrompt = document.querySelector("#customPrompt");
 const generateButton = document.querySelector("#generateButton");
 const cancelButton = document.querySelector("#cancelButton");
 
@@ -67,8 +65,6 @@ const generateVideo = () => {
   const youtubeUpload = youtubeToggle.checked;
   const useMusicToggleState = useMusicToggle.checked;
   const threads = document.querySelector("#threads").value;
-  const zipUrlValue = zipUrl.value;
-  const customPromptValue = customPrompt.value;
   const subtitlesPosition = document.querySelector("#subtitlesPosition").value;
   const colorHexCode = document.querySelector("#subtitlesColor").value;
 
@@ -83,10 +79,10 @@ const generateVideo = () => {
     paragraphNumber: paragraphNumberValue,
     automateYoutubeUpload: youtubeUpload,
     useMusic: useMusicToggleState,
-    zipUrl: zipUrlValue,
+    zipUrl: "",
     threads: threads,
     subtitlesPosition: subtitlesPosition,
-    customPrompt: customPromptValue,
+    customPrompt: "",
     color: colorHexCode,
   };
 
@@ -135,7 +131,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
 // Save the data to localStorage when the user changes the value
 toggles = ["youtubeUploadToggle", "useMusicToggle", "reuseChoicesToggle"];
-fields = ["aiModel", "voice", "paragraphNumber", "videoSubject", "zipUrl", "customPrompt", "threads", "subtitlesPosition", "subtitlesColor"];
+fields = ["aiModel", "voice", "paragraphNumber", "videoSubject", "threads", "subtitlesPosition", "subtitlesColor"];
 
 document.addEventListener("DOMContentLoaded", () => {
   toggles.forEach((id) => {
